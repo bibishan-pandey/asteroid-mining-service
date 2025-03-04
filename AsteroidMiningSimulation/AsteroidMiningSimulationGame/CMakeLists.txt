@@ -1,40 +1,37 @@
-set(ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME AsteroidMiningSimulationGame)
+add_executable(${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}
 
-add_executable(
-        ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gameframework/GameApplication.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/gameframework/GameApplication.cpp
 )
 
-target_link_libraries(${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME} PUBLIC
-        sfml-audio
-        sfml-graphics
-        sfml-window
-        sfml-system
-        sfml-network
+target_include_directories(${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-#function(CopyLibToTarget LIB_NAME TARGET_NAME)
-#    add_custom_command(
-#            TARGET ${TARGET_NAME}
-#            POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#                $<TARGET_FILE:${LIB_NAME}>
-#                $<TARGET_FILE_DIR:${TARGET_NAME}>
-#    )
-#endfunction()
-#
-#CopyLibToTarget(sfml-graphics ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
-#CopyLibToTarget(sfml-window ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
-#CopyLibToTarget(sfml-system ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
-#CopyLibToTarget(sfml-audio ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
-#CopyLibToTarget(sfml-network ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
+target_link_libraries(${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME} PUBLIC ${ASTEROID_MINING_SIMULATION_ENGINE_TARGET_NAME})
 
-# Replaces the above function where we had to copy the dlls into the build target folder
-add_custom_command(
-        TARGET ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}
+function(CopyLibDirToTarget LIB_NAME TARGET_NAME)
+    add_custom_command(TARGET ${TARGET_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            $<TARGET_FILE_DIR:${LIB_NAME}>
+            $<TARGET_FILE_DIR:${TARGET_NAME}>
+    )
+endfunction()
+
+CopyLibDirToTarget(${ASTEROID_MINING_SIMULATION_ENGINE_TARGET_NAME} ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME})
+
+set(RESOURCE_FOLDER_NAME "assets")
+set(RESOURCE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RESOURCE_FOLDER_NAME}")
+
+add_custom_command(TARGET ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}>
-            $<TARGET_FILE_DIR:${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}>
-        COMMAND_EXPAND_LISTS
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${RESOURCE_SRC_DIR}
+        $<TARGET_FILE_DIR:${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}>/${RESOURCE_FOLDER_NAME}
+)
+
+configure_file(
+        "config.h.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/config.h" ESCAPE_QUOTES
 )
