@@ -1,0 +1,6 @@
+set(ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME AsteroidMiningSimulationGame)
+
+add_executable(
+        ${ASTEROID_MINING_SIMULATION_GAME_TARGET_NAME}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+)
